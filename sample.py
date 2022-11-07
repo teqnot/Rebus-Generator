@@ -6,7 +6,7 @@ from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
-token = '2129680470:AAGkGLUrLQcIeRUKKZ7OoKQYYJN-VvlWKkY'
+token = 'xxxx'
 bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
@@ -75,9 +75,9 @@ def imageHandler():
         print(i)
 
         try:
-            img = Image.open(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.jpg')
+            img = Image.open(f'path/00000{i}.jpg')
         except:
-            img = Image.open(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.png')
+            img = Image.open(f'path/00000{i}.png')
 
         width, height = img.size
         collageWidth += width
@@ -88,16 +88,16 @@ def imageHandler():
         draw.text((width - 10, height - 10), len(possibleWordsSplit[i - 1][2]) * "' ", (0, 0, 0), anchor='rs', font=font)
 
         try:
-            img.save(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.jpg')
-            listOfImages.append(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.jpg')
-            os.remove(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.jpg')
+            img.save(f'path/images/00000{i}Red.jpg')
+            listOfImages.append(f'path/images/00000{i}Red.jpg')
+            os.remove(f'path/images/00000{i}.jpg')
         except:
-            img.save(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.png')
-            listOfImages.append(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.png')
-            os.remove(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.png')
+            img.save(f'path/00000{i}Red.png')
+            listOfImages.append(f'path/images/00000{i}Red.png')
+            os.remove(f'path/images/00000{i}.png')
 
 def searchQuery(name):
-    googleCrawler = GoogleImageCrawler(storage={f'root_dir' : 'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images'})
+    googleCrawler = GoogleImageCrawler(storage={f'root_dir' : 'path/images'})
     googleCrawler.crawl(keyword=name, max_num=1, file_idx_offset='auto', filters=filters)
     return
 
