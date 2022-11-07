@@ -1,19 +1,39 @@
 from icrawler.builtin import GoogleImageCrawler
 import random
+import telebot
 import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
-j = 0
-collageWidth = 0
-collageHeight = 0
-filters = dict(type='clipart')
-wordList = []
-riddleSyllables = []
-possibleWords = []
-listOfImages = []
-possibleWordsSplit = []
+token = '2129680470:AAGkGLUrLQcIeRUKKZ7OoKQYYJN-VvlWKkY'
+bot = telebot.TeleBot(token)
+
+@bot.message_handler(commands=['start'])
+def startMessage(message):
+    bot.send_message(message.chat.id, 'Бот Генератор-ребусов! \n Начать угадывать: /riddle')
+
+@bot.message_handler(commands=['riddle'])
+def riddle(message):
+    global riddle
+    flag = 0
+    main()
+    start()
+    imageHandler()
+    create_collage(collageWidth, collageHeight, listOfImages)
+    bot.send_photo(message.chat.id, photo=open('Collage.jpg', 'rb'))
+    bot.send_message(message.chat.id, 'Теперь попробуй угадать, что загадано на картинке: ')
+
+    @bot.message_handler(content_types=['text'])
+    def check(message):
+        while True:
+            answer = message.text
+            if answer == riddle:
+                bot.send_message(message.chat.id, 'Молодец! Ты угадал!')
+                return
+            else:
+                bot.send_message(message.chat.id, 'Ты не угадал. Попробуй снова.')
+                check()
 
 def create_collage(width, height, listofimages):
     cols = len(listofimages)
@@ -50,7 +70,7 @@ def create_collage(width, height, listofimages):
 
 
 def imageHandler():
-    global collageHeight, collageWidth
+    global collageWidth, collageHeight, listOfImages
     for i in range(1, len(possibleWords) + 1):
         print(i)
 
@@ -82,41 +102,52 @@ def searchQuery(name):
     return
 
 def start():
+    global possibleWords
     for s in range(len(possibleWords)):
         searchQuery(possibleWords[s])
 
-with open('wordList.txt', 'r', encoding='UTF-8') as file:
-    for line in file:
-        wordList.append(line.rstrip())
+def main():
+    global j, wordList, riddleSyllables, possibleWords, possibleWordsSplit, riddle, listOfImages, filters, collageWidth, collageHeight
 
-for i in range(len(wordList)):
-    buff = wordList[i].split('	')
-    wordList[i] = buff[1]
+    j = 0
+    collageWidth = 0
+    collageHeight = 0
+    filters = dict(type='clipart')
+    wordList = []
+    riddleSyllables = []
+    possibleWords = []
+    listOfImages = []
+    possibleWordsSplit = []
 
-riddle = random.choice(wordList)
-print(riddle)
+    with open('wordList.txt', 'r', encoding='UTF-8') as file:
+        for line in file:
+            wordList.append(line.rstrip())
 
-while j < len(riddle):
-    if j + 3 < len(riddle):
-        riddleSyllables.append(riddle[j:j+3])
-    else:
-        riddleSyllables.append(riddle[j:len(riddle)])
-    j += 3
+    for i in range(len(wordList)):
+        buff = wordList[i].split('	')
+        wordList[i] = buff[1]
 
-print(riddleSyllables)
+    riddle = random.choice(wordList)
+    print(riddle)
 
-for k in riddleSyllables:
-    for h in wordList:
-        if (k in h) and (h != riddle) and (h not in possibleWords):
-            buffer = h.split(k)
-            possibleWords.append(h)
-            possibleWordsSplit.append([buffer[0], k, buffer[1]])
-            break
+    while j < len(riddle):
+        if j + 3 < len(riddle):
+            riddleSyllables.append(riddle[j:j+3])
+        else:
+            riddleSyllables.append(riddle[j:len(riddle)])
+        j += 3
 
-print(possibleWords)
-print(possibleWordsSplit)
+    print(riddleSyllables)
 
-start()
+    for k in riddleSyllables:
+        for h in wordList:
+            if (k in h) and (h != riddle) and (h not in possibleWords):
+                buffer = h.split(k)
+                possibleWords.append(h)
+                possibleWordsSplit.append([buffer[0], k, buffer[1]])
+                break
 
-imageHandler()
-create_collage(collageWidth, collageHeight, listOfImages)
+    print(possibleWords)
+    print(possibleWordsSplit)
+
+bot.infinity_polling()
