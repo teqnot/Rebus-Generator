@@ -7,7 +7,7 @@ from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
-token = '2129680470:AAGkGLUrLQcIeRUKKZ7OoKQYYJN-VvlWKkY'
+token = 'xxxxx'
 bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
@@ -101,16 +101,16 @@ def imageHandler():
         draw.text((width - 10, height - 10), len(possibleWordsSplit[i - 1][2]) * "' ", (0, 0, 0), anchor='rs', font=font)
 
         try:
-            img.save(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.jpg')
-            listOfImages.append(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.jpg')
-            os.remove(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.jpg')
+            img.save(f'images/00000{i}Red.jpg')
+            listOfImages.append(f'images/00000{i}Red.jpg')
+            os.remove(f'images/00000{i}.jpg')
         except:
-            img.save(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.png')
-            listOfImages.append(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}Red.png')
-            os.remove(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.png')
+            img.save(f'00000{i}Red.png')
+            listOfImages.append(f'00000{i}Red.png')
+            os.remove(f'00000{i}.png')
 
 def searchQuery(name):
-    googleCrawler = GoogleImageCrawler(storage={f'root_dir' : 'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images'})
+    googleCrawler = GoogleImageCrawler(storage={f'root_dir' : 'images'})
     googleCrawler.crawl(keyword=name, max_num=1, file_idx_offset='auto', filters=filters, min_size=(200, 200), max_size=(1000, 1000))
     return
 
