@@ -1,6 +1,7 @@
 from icrawler.builtin import GoogleImageCrawler
 import random
 import telebot
+from telebot import types
 import os
 from PIL import Image
 from PIL import ImageFont
@@ -14,26 +15,35 @@ def startMessage(message):
     bot.send_message(message.chat.id, 'Бот Генератор-ребусов! \n Начать угадывать: /riddle')
 
 @bot.message_handler(commands=['riddle'])
-def riddle(message):
+def riddleSender(message):
     global riddle
-    flag = 0
+
     main()
     start()
     imageHandler()
     create_collage(collageWidth, collageHeight, listOfImages)
     bot.send_photo(message.chat.id, photo=open('Collage.jpg', 'rb'))
     bot.send_message(message.chat.id, 'Теперь попробуй угадать, что загадано на картинке: ')
+    bot.send_message(message.chat.id, 'Если совсем застрял, напиши "ответ"!')
 
     @bot.message_handler(content_types=['text'])
     def check(message):
         while True:
             answer = message.text
+
             if answer == riddle:
                 bot.send_message(message.chat.id, 'Молодец! Ты угадал!')
-                return
+                riddleSender(message)
+
+            elif answer.lower() == 'ответ':
+                bot.send_message(message.chat.id, f'Ответ - {riddle} \nЕсли хотите попробовать еще раз, напишите repeat!')
+
+            elif message.text == 'repeat':
+                riddleSender(message)
+
             else:
-                bot.send_message(message.chat.id, 'Ты не угадал. Попробуй снова.')
-                check()
+                bot.send_message(message.chat.id, f'Ты не угадал. Ответ был: {riddle}. \nПопробуй снова.')
+                continue
 
 def create_collage(width, height, listofimages):
     cols = len(listofimages)
@@ -70,7 +80,7 @@ def create_collage(width, height, listofimages):
 
 
 def imageHandler():
-    global collageWidth, collageHeight, listOfImages
+    global collageWidth, collageHeight, listOfImages, heights
     for i in range(1, len(possibleWords) + 1):
         print(i)
 
@@ -80,8 +90,11 @@ def imageHandler():
             img = Image.open(f'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images/00000{i}.png')
 
         width, height = img.size
+        heights.append(height)
+
         collageWidth += width
-        collageHeight += height
+        collageHeight = max(heights)
+
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype('arial.ttf', 60)
         draw.text((10,10), len(possibleWordsSplit[i - 1][0]) * "' ", (0, 0, 0), font=font)
@@ -98,7 +111,7 @@ def imageHandler():
 
 def searchQuery(name):
     googleCrawler = GoogleImageCrawler(storage={f'root_dir' : 'C:/Users/Александр/PycharmProjects/pythonProject/SillyGen/images'})
-    googleCrawler.crawl(keyword=name, max_num=1, file_idx_offset='auto', filters=filters)
+    googleCrawler.crawl(keyword=name, max_num=1, file_idx_offset='auto', filters=filters, min_size=(200, 200), max_size=(1000, 1000))
     return
 
 def start():
@@ -107,12 +120,13 @@ def start():
         searchQuery(possibleWords[s])
 
 def main():
-    global j, wordList, riddleSyllables, possibleWords, possibleWordsSplit, riddle, listOfImages, filters, collageWidth, collageHeight
+    global j, wordList, riddleSyllables, possibleWords, possibleWordsSplit, riddle, listOfImages, filters, collageWidth, collageHeight, heights
 
     j = 0
     collageWidth = 0
     collageHeight = 0
     filters = dict(type='clipart')
+    heights = []
     wordList = []
     riddleSyllables = []
     possibleWords = []
@@ -146,6 +160,9 @@ def main():
                 possibleWords.append(h)
                 possibleWordsSplit.append([buffer[0], k, buffer[1]])
                 break
+
+    if len(possibleWords) != len(riddleSyllables):
+        main()
 
     print(possibleWords)
     print(possibleWordsSplit)
